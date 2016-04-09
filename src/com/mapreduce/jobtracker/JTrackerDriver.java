@@ -1,7 +1,13 @@
 package com.mapreduce.jobtracker;
 
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 
+import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MapReduce.JobStatusResponse;
 import com.mapreduce.misc.MapReduce.JobSubmitRequest;
 
@@ -27,7 +33,17 @@ public class JTrackerDriver implements IJobTracker {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		/**initialize data structures **/
+		initializeDataStructures();
+		
+        /**call bind to registry **/
+        bindToRegistry();
+        
+		
 	}
+	
+	
+	
 
 	@Override
 	public byte[] jobSubmit(byte[] jobSubmitRequest) {
@@ -50,4 +66,37 @@ public class JTrackerDriver implements IJobTracker {
 		return null;
 	}
 
+	/**bind to registry method **/
+	static void bindToRegistry()
+	{
+		System.setProperty("java.rmi.server.hostname",Constants.JOB_TRACKER_IP);
+		JTrackerDriver obj = new JTrackerDriver();
+		try {
+			
+			Registry register=LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+			IJobTracker stub = (IJobTracker) UnicastRemoteObject.exportObject(obj,Registry.REGISTRY_PORT);
+			try {
+				register.bind(Constants.JOB_TRACKER_IP, stub);
+				
+				System.out.println("JOB TRACKER started succesfully");
+			} catch (AlreadyBoundException e) {
+				// TODO Auto-generated catch block
+				System.out.println("JOB TRACKER failed to bind");
+				e.printStackTrace();
+			}
+			
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+
+	static void initializeDataStructures()
+	{
+		jobs = new HashMap<>();
+		jobStatus = new HashMap<Integer, JobStatusResponse>();
+		jobMapInfo = new HashMap<>();
+		jobReduceInfo = new HashMap<>();
+	}
+	
 }
