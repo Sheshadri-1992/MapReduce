@@ -208,7 +208,7 @@ public class JTrackerDriver implements IJobTracker {
 	}
 
 	@Override
-	public byte[] heartBeat(byte[] heartBeatRequestByte) {
+	public synchronized byte[] heartBeat(byte[] heartBeatRequestByte) {
 		
 		/**Heart beat is called by the task trackers every second, they send the number of map threads and reduce thread slots free **/
 		
