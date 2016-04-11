@@ -7,14 +7,14 @@ import com.mapreduce.jobtracker.MapInfo.TaskInfo;
 
 public class ReduceInfo {
 
-	public class TaskInfo
+	public class RedTaskInfo
 	{
 		List<String> mapOutFiles;
 		String outputFile;
 		boolean status;
 		int taskID;
 		
-		public TaskInfo(List<String> mapOut,boolean st,String out,int task)
+		public RedTaskInfo(List<String> mapOut,boolean st,String out,int task)
 		{
 			mapOutFiles = mapOut;
 			status = st;
@@ -25,7 +25,7 @@ public class ReduceInfo {
 		
 	}
 	
-	public List<TaskInfo> tasks; 
+	public List<RedTaskInfo> tasks; 
 	
 	public ReduceInfo()
 	{
@@ -35,21 +35,29 @@ public class ReduceInfo {
 	public void addTask(List<String> mapOut,String out)
 	{
 		int size = tasks.size();
-		TaskInfo task = new  TaskInfo(mapOut, false, out, size);
+		RedTaskInfo task = new  RedTaskInfo(mapOut, false, out, size);
 		tasks.add(task);
 	}
 	
 	
-	/*** implementation left */
+	/* implementation left */
 	
 	public boolean isAllTaskCompleted()
 	{
-		return false;
+		//iterate over all and return a result
+		boolean result=tasks.get(0).status; // this takes care of the case where a file is only 1 block
+		
+		for(int i=1;i<tasks.size();i++)
+		{
+			result = result && tasks.get(i).status; 
+		}
+		
+		return result;
 	}
 	
 	public void updateStatus(int taskID)
 	{
-		
+		tasks.get(taskID).status = true;		
 	}
 	
 }

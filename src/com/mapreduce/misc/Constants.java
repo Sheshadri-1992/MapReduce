@@ -25,4 +25,10 @@ public final class Constants {
 
 	public static final String CONNECTIVITY = "eth0"; //eth0 if you use a cable
 //	public static final String CONNECTIVITY = "wlan0"; //eth0 if you use a cable
+	
+	
+	/***ADDED BY SHESH DFS **/
+	public static final String JOB_TRACKER_IP = "10.3.9.118";
+	public static final String REDUCE_FILE = "_reduceFile_";
+	
 }
