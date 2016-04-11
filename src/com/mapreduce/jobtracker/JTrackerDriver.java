@@ -258,13 +258,11 @@ public class JTrackerDriver implements IJobTracker {
 				//then schedule a task until the queue gets over or the threads get lesser
 				int numOfMapThreads = numOfMapSlot;
 				
-				
-				
 				int index = 0;
 				
 				while(numOfMapThreads>0 && mapQueue.hasItems())
 				{
-					MapQueueUnit  mapQueueItem = mapQueue.dequeue();
+					MapQueueUnit  mapQueueItem = mapQueue.dequeue(); //thid hsndles queue condition
 					
 					MapTaskInfo.Builder mapTaskInfoObj = MapTaskInfo.newBuilder();
 					mapTaskInfoObj.setJobId(mapQueueItem.jobID);
@@ -272,7 +270,7 @@ public class JTrackerDriver implements IJobTracker {
 					mapTaskInfoObj.setMapName(mapQueueItem.mapName);
 					
 					com.mapreduce.misc.MapReduce.BlockLocations.Builder blockLocationObj = com.mapreduce.misc.MapReduce.BlockLocations.newBuilder();
-					blockLocationObj.setBlockNumber(mapQueueItem.inputBlock.getBlockNumber());
+					blockLocationObj.setBlockNumber(mapQueueItem.inputBlock.getBlockNumber());//blocklocation => (blockNumber + datanodelocations)
 					
 					List<com.mapreduce.hdfsutils.Hdfs.DataNodeLocation> dataNodeLocations = mapQueueItem.inputBlock.getLocationsList();
 					
@@ -287,7 +285,7 @@ public class JTrackerDriver implements IJobTracker {
 					
 					mapTaskInfoObj.addInputBlocks(blockLocationObj);
 				
-					hBeatResponseObj.addMapTasks(index, mapTaskInfoObj);
+					hBeatResponseObj.addMapTasks(index, mapTaskInfoObj); //because this is a repeated field in proto
 					
 					numOfMapThreads--;
 					index++;
@@ -309,7 +307,7 @@ public class JTrackerDriver implements IJobTracker {
 				
 				while(numOfReduceThreads>0 && reduceQueue.hasItems())
 				{
-					ReduceQueueUnit redQueueItem = reduceQueue.dequeue();
+					ReduceQueueUnit redQueueItem = reduceQueue.dequeue();//this takes care of the queue condition
 					
 					ReducerTaskInfo.Builder reducerTaskObj = ReducerTaskInfo.newBuilder();
 					
@@ -343,6 +341,7 @@ public class JTrackerDriver implements IJobTracker {
 			 
 			 if(reduceTaskStObj.getJobId()<0) //as in it has not been assigned a job yet
 			 {
+				 System.out.println("No reduce tasks assigned yet :(");
 				 continue;
 			 }
 			 //else job has been assigned update it's completion status
@@ -374,6 +373,8 @@ public class JTrackerDriver implements IJobTracker {
 	static void concatenateReduceFiles(int localJobID) {
 	
 		//The file names are available to the Job Tracker, it just has to write it as a single file
+		WriteOutputFile outputFileObj = new WriteOutputFile(jobRequests.get(localJobID).getOutputFile(),reduceOutputFiles.get(localJobID) );
+		outputFileObj.writeIntoHDFS();
 		
 	}
 
@@ -455,7 +456,7 @@ public class JTrackerDriver implements IJobTracker {
 					}
 				}
 				
-				redInfoObj.addTask(divLines, reduceOutputFiles.get(localJobID).get(i));
+				redInfoObj.addTask(divLines, reduceOutputFiles.get(localJobID).get(i));//no of map output files, per reducer and its outputfile name
 				
 		}
 
