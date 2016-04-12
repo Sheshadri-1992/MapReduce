@@ -1,4 +1,4 @@
-package com.mapreduce.misc;
+package com.mapreduce.hdfsutils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,8 +15,6 @@ import java.util.List;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.mapreduce.hdfsutils.IDataNode;
-import com.mapreduce.hdfsutils.INameNode;
 import com.mapreduce.hdfsutils.Hdfs.AssignBlockRequest;
 import com.mapreduce.hdfsutils.Hdfs.AssignBlockResponse;
 import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
@@ -26,6 +24,7 @@ import com.mapreduce.hdfsutils.Hdfs.DataNodeLocation;
 import com.mapreduce.hdfsutils.Hdfs.OpenFileRequest;
 import com.mapreduce.hdfsutils.Hdfs.OpenFileResponse;
 import com.mapreduce.hdfsutils.Hdfs.WriteBlockRequest;
+import com.mapreduce.misc.Constants;
 
 public class PutFile implements Runnable {
 
