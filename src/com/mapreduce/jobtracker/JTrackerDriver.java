@@ -83,7 +83,7 @@ public class JTrackerDriver implements IJobTracker {
 		// TODO Auto-generated method stub
 		System.out.println("Job Submit got called");
 		
-		System.exit(0);
+//		System.exit(0);
 		
 		try {
 			JobSubmitRequest jSubReqObj = JobSubmitRequest.parseFrom(jobSubmitRequest);
@@ -118,7 +118,7 @@ public class JTrackerDriver implements IJobTracker {
 		
 		JobSubmitResponse.Builder jobStatusResObj = JobSubmitResponse.newBuilder();
 		jobStatusResObj.setJobId(jobID);
-		jobStatusResObj.setStatus(1); //STATUS HARD CODED
+		jobStatusResObj.setStatus(Constants.STATUS_SUCCESS); //STATUS HARD CODED
 		
 		/**have to formulate a response **/
 		return jobStatusResObj.build().toByteArray();
@@ -142,7 +142,7 @@ public class JTrackerDriver implements IJobTracker {
 		
 		for(int i=0;i<numReduceTasks;i++)
 		{
-			reduceOutputFileNames.add(jobIDArgs+""+"_"+i+"_"+Constants.REDUCE_FILE);
+			reduceOutputFileNames.add(Constants.REDUCE_FILE+ "_"+jobIDArgs+"_"+i);
 		}
 		
 		reduceOutputFiles.put(jobIDArgs, reduceOutputFileNames);
@@ -191,7 +191,7 @@ public class JTrackerDriver implements IJobTracker {
 			
 			jobResponseObj =  jobResponseUnitMap.get(jStatusReqObj.getJobId());
 			
-			jStatusResObj.setStatus(1);// STATUS HARD CODE
+			jStatusResObj.setStatus(Constants.STATUS_SUCCESS);// STATUS HARD CODE
 			jStatusResObj.setJobDone(jobResponseObj.jobDone);
 			jStatusResObj.setTotalMapTasks(jobResponseObj.totalMapTasks);
 			jStatusResObj.setNumMapTasksStarted(jobResponseObj.numMapTasksStarted);
@@ -249,7 +249,7 @@ public class JTrackerDriver implements IJobTracker {
 		
 		HeartBeatResponse.Builder hBeatResponseObj = HeartBeatResponse.newBuilder();
 		
-		hBeatResponseObj.setStatus(1); // STATUS HARD CODED
+		hBeatResponseObj.setStatus(Constants.STATUS_SUCCESS); // STATUS HARD CODED
 		
 		if(mapQueue.hasItems()) //means map queue has jobs to schedule
 		{

@@ -29,6 +29,7 @@ public final class Constants {
 	
 	/***ADDED BY SHESH DFS **/
 	public static final String JOB_TRACKER_IP = "10.3.9.118";
-	public static final String REDUCE_FILE = "_reduceFile_";
+	public static final String REDUCE_FILE = "reduceFile";
+	public static final String REDUCER_INTERMEDIATE = "RED_INTER_";
 	
 }
