@@ -33,4 +33,7 @@ public final class Constants {
 	public static final String REDUCE_FILE = "reduceFile";
 	public static final String REDUCER_INTERMEDIATE = "RED_INTER_";
 	
+	public static final String  JT_CONF_FILE = "JTConf";
+	public static final long JOB_STATUS_FREQ = 5000;
+	
 }
