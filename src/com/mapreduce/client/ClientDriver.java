@@ -11,6 +11,7 @@ import java.rmi.registry.Registry;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.mapreduce.jobtracker.IJobTracker;
+import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MapReduce.JobStatusRequest;
 import com.mapreduce.misc.MapReduce.JobStatusResponse;
 import com.mapreduce.misc.MapReduce.JobSubmitRequest;
@@ -55,7 +56,7 @@ public class ClientDriver {
 		if(registry!=null)
 		{
 			IJobTracker jtStub;
-			jtStub=(IJobTracker) registry.lookup(Constants.JOB_TRACKER_IP);  // @Sheshadri : Name kept for binding
+			jtStub=(IJobTracker) registry.lookup(Constants.JOB_TRACKER);  // @Sheshadri : Name kept for binding
 			
 			JobSubmitRequest.Builder jobSubmitRequest = JobSubmitRequest.newBuilder();
 			

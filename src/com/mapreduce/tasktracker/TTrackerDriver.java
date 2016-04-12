@@ -12,15 +12,19 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.mapreduce.client.Constants;
-import com.mapreduce.misc.MapReduce.*;
 import com.mapreduce.jobtracker.IJobTracker;
-import com.mapreduce.jobtracker.MapInfo;
+import com.mapreduce.misc.Constants;
+import com.mapreduce.misc.MapReduce.DataNodeLocation;
+import com.mapreduce.misc.MapReduce.HeartBeatRequest;
+import com.mapreduce.misc.MapReduce.HeartBeatResponse;
+import com.mapreduce.misc.MapReduce.MapTaskInfo;
+import com.mapreduce.misc.MapReduce.MapTaskStatus;
+import com.mapreduce.misc.MapReduce.ReduceTaskStatus;
+import com.mapreduce.misc.MapReduce.ReducerTaskInfo;
 
 public class TTrackerDriver {
 
@@ -42,7 +46,7 @@ public class TTrackerDriver {
 		 id = Integer.parseInt(args[0]);
 		 
 		 myLocation.setIp(getMyIP());
-		 myLocation.setPort(1099);
+		 myLocation.setPort(Constants.TT_PORT+id);
 		 
 		 mapTaskStatus = new ArrayList<>();
 		 redTaskStatus = new ArrayList<>();
