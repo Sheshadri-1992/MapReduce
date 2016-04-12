@@ -280,12 +280,12 @@ public class JTrackerDriver implements IJobTracker {
 						miscDataNodeLocation.setIp(dataNodeLocations.get(k).getIp());
 						miscDataNodeLocation.setPort(dataNodeLocations.get(k).getPort());
 						
-						blockLocationObj.setLocations(k, miscDataNodeLocation);
+						blockLocationObj.addLocations(miscDataNodeLocation);
 					}
 					
 					mapTaskInfoObj.addInputBlocks(blockLocationObj);
 				
-					hBeatResponseObj.addMapTasks(index, mapTaskInfoObj); //because this is a repeated field in proto
+					hBeatResponseObj.addMapTasks(mapTaskInfoObj); //because this is a repeated field in proto
 					
 					numOfMapThreads--;
 					index++;
@@ -317,7 +317,7 @@ public class JTrackerDriver implements IJobTracker {
 					reducerTaskObj.setReducerName(redQueueItem.reducerName);
 					reducerTaskObj.addAllMapOutputFiles(redQueueItem.mapOutputFiles);
 					
-					hBeatResponseObj.addReduceTasks(index, reducerTaskObj);
+					hBeatResponseObj.addReduceTasks(reducerTaskObj);
 					
 					numOfReduceThreads--;
 					index++;
