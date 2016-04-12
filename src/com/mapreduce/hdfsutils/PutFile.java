@@ -48,6 +48,7 @@ public class PutFile implements Runnable {
 
 	private void openFilePut() {
 		// TODO Auto-generated method stub
+		
 		int fileHandle;
 		byte[] responseArray;
 		

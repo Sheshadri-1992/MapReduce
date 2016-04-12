@@ -12,6 +12,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,8 +44,11 @@ public class TTrackerDriver {
 	  public static void main(String[] args) {
 	      
 		 
+		  myLocation = DataNodeLocation.newBuilder();
+		  
 		 id = Integer.parseInt(args[0]);
 		 
+		 System.out.println(getMyIP());
 		 myLocation.setIp(getMyIP());
 		 myLocation.setPort(Constants.TT_PORT+id);
 		 
@@ -93,10 +97,9 @@ public class TTrackerDriver {
              public void run() {
             	 while(true)
             	 {
-//	            		
-            
+//	           
          			try {
-						IJobTracker jtStub=(IJobTracker) registry.lookup(Constants.JOB_TRACKER_IP);
+						IJobTracker jtStub=(IJobTracker) registry.lookup(Constants.JOB_TRACKER);
 						
 						
 						HeartBeatRequest.Builder req = HeartBeatRequest.newBuilder();
@@ -108,6 +111,7 @@ public class TTrackerDriver {
 						
 						byte [] resAray =   jtStub.heartBeat(req.build().toByteArray());
 						
+						System.out.print("b");
 						removeCompletedMapTask();
 						removeCompletedRedTask();
 						
@@ -116,12 +120,12 @@ public class TTrackerDriver {
 							
 							if(res.getMapTasksList().size()!=0)
 							{
-								startMapTaskThread(res.getMapTasksList().get(0));
+								startMapTaskThread(res.getMapTasksList());
 							}
 							
 							if(res.getReduceTasksList().size()!=0)
 							{
-								startReduceTaskThread(res.getReduceTasksList().get(0));
+								startReduceTaskThread(res.getReduceTasksList());
 							}
 							
 						
@@ -160,7 +164,9 @@ public class TTrackerDriver {
 	 
 	 private static  Registry getJTRegistry()
 		{
-			BufferedReader buff;
+			
+		 System.out.print("reching");
+		 BufferedReader buff;
 			String line="";
 			try {
 				buff = new BufferedReader(new FileReader(Constants.JT_CONF_FILE));  
@@ -174,13 +180,14 @@ public class TTrackerDriver {
 			
 			String tokens[] = line.split(" ");
 			
+			
 			Registry registry =null;
 			try {
 				registry = LocateRegistry.getRegistry(tokens[0],Integer.parseInt(tokens[1]));
 				
 			}catch(RemoteException e)
 			{
-				
+				e.printStackTrace();
 			}
 			
 			return registry;
@@ -217,23 +224,48 @@ public class TTrackerDriver {
 
 	 
 	 
-	 static void startMapTaskThread(MapTaskInfo info)
+	 static void startMapTaskThread(List<MapTaskInfo> info)
 	 {
-		 MapTaskStatus.Builder status = MapTaskStatus.newBuilder();
-		 status.setTaskId(info.getTaskId());
-		 status.setJobId(info.getJobId());
-		 status.setMapOutputFile(getMapOutFileName(info.getJobId(),info.getTaskId(),"map"));
-		 status.setTaskCompleted(false);
+		
+		 for(int i=0;i<info.size();i++)
+		 {
+			 MapTaskStatus.Builder status = MapTaskStatus.newBuilder();
+			 status.setTaskId(info.get(i).getTaskId());
+			 status.setJobId(info.get(i).getJobId());
+			 status.setMapOutputFile(getMapOutFileName(info.get(i).getJobId(),info.get(i).getTaskId(),"map"));
+			 status.setTaskCompleted(false);
+			 
+			 mapTaskStatus.add(status.build());
+			 
+			
+			 Runnable worker = new MapThread(info.get(i));
+			 executorMap.execute(worker);
+			 
+			 updateNumMapThread(-1);
+			 
+		 }
 		 
-		 mapTaskStatus.add(status.build());
-		 
-		 Runnable worker = new MapThread(info);
-		 executorMap.execute(worker);
+		
 	 }
 	 
-	 static void startReduceTaskThread(ReducerTaskInfo info)
+	 static void startReduceTaskThread(List<ReducerTaskInfo> info)
 	 {
-		 
+		 for(int i=0;i<info.size();i++)
+		 {
+			 ReduceTaskStatus.Builder status = ReduceTaskStatus.newBuilder();
+			 status.setTaskId(info.get(i).getTaskId());
+			 status.setJobId(info.get(i).getJobId());
+			 
+			 status.setTaskCompleted(false);
+			 
+			 redTaskStatus.add(status.build());
+			 
+			
+			 Runnable worker = new ReduceThread(info.get(i));
+			 executorReduce.execute(worker);
+			 updateNumRedThread(-1);
+			 
+		 }
 	 }
 	 
 	 
@@ -256,6 +288,8 @@ public class TTrackerDriver {
 				 break;
 			 }
 		 }
+		 
+		 updateNumMapThread(1);
 	 }
 	 
 	 static synchronized void updateReduceStatus(ReducerTaskInfo info)
@@ -271,6 +305,8 @@ public class TTrackerDriver {
 				 break;
 			 }
 		 }
+		 
+		 updateNumRedThread(1);
 	 }
 	 
 	 static synchronized void removeCompletedMapTask()
@@ -298,7 +334,15 @@ public class TTrackerDriver {
 		 }
 	 }
 	 
+	 public static synchronized void updateNumMapThread(int i)
+	 {
+		 numMapThreads = numMapThreads + i;
+	 }
 	 
+	 public static synchronized void updateNumRedThread(int i)
+	 {
+		 numRedThreads = numRedThreads + i;
+	 }
 
 		public static String getMyIP()
 		{

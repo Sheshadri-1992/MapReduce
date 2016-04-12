@@ -36,6 +36,8 @@ public class ClientDriver {
 		outputFile = args[3];
 		numReducers = Integer.parseInt(args[4]);
 		
+		System.out.print(inputFile);
+		
 		
 		try {
 			submitJob();
@@ -51,7 +53,11 @@ public class ClientDriver {
 	private static void submitJob() throws AccessException, RemoteException, NotBoundException, InvalidProtocolBufferException {
 		// TODO Auto-generated method stub
 		
+		
+		System.out.print("jejej");
+		
 		Registry registry = getRegistry();
+		System.out.print(registry);
 		
 		if(registry!=null)
 		{
@@ -60,7 +66,14 @@ public class ClientDriver {
 			
 			JobSubmitRequest.Builder jobSubmitRequest = JobSubmitRequest.newBuilder();
 			
+			jobSubmitRequest.setInputFile(inputFile);
+			jobSubmitRequest.setOutputFile(outputFile);
+			jobSubmitRequest.setMapName(mapName);
+			jobSubmitRequest.setReducerName(reducerName);
+			jobSubmitRequest.setNumReduceTasks(numReducers);
+			
 			byte[] responseArray = jtStub.jobSubmit(jobSubmitRequest.build().toByteArray());
+			
 			JobSubmitResponse jobSubmitResponse = JobSubmitResponse.parseFrom(responseArray);
 			int jobId =jobSubmitResponse.getJobId();
 			
@@ -127,7 +140,7 @@ public class ClientDriver {
 			
 		}catch(RemoteException e)
 		{
-			
+			e.printStackTrace();
 		}
 		
 		return registry;
