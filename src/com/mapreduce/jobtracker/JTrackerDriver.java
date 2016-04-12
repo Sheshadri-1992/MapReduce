@@ -12,12 +12,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.mapreduce.hdfsutils.Hdfs.BlockLocationRequest;
-import com.mapreduce.hdfsutils.Hdfs.BlockLocationResponse;
-import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
-import com.mapreduce.hdfsutils.Hdfs.OpenFileRequest;
-import com.mapreduce.hdfsutils.Hdfs.OpenFileResponse;
-import com.mapreduce.hdfsutils.INameNode;
+import com.hdfs.namenode.INameNode;
+import com.hdfs.namenode.Hdfs.BlockLocationRequest;
+import com.hdfs.namenode.Hdfs.BlockLocationResponse;
+import com.hdfs.namenode.Hdfs.BlockLocations;
+import com.hdfs.namenode.Hdfs.OpenFileRequest;
+import com.hdfs.namenode.Hdfs.OpenFileResponse;
 import com.mapreduce.jobtracker.MapInfo.TaskInfo;
 import com.mapreduce.jobtracker.ReduceInfo.RedTaskInfo;
 import com.mapreduce.misc.Constants;
@@ -66,6 +66,12 @@ public class JTrackerDriver implements IJobTracker {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		System.setProperty("java.security.policy","./security.policy");
+		//set the security manager
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new SecurityManager());
+        }
+		
 		/**initialize data structures **/
 		initializeDataStructures();
 		
@@ -96,7 +102,8 @@ public class JTrackerDriver implements IJobTracker {
 			mapOutputFiles.put(jobID, new ArrayList<String>());
 			
 			/**next get the number of blocks from name node server**/
-			ArrayList<BlockLocations> blockLocations = (ArrayList<BlockLocations>) getBlockLocations(jSubReqObj.getInputFile());
+			List<BlockLocations> blockLocations = getBlockLocations(jSubReqObj.getInputFile());
+			System.out.println("What's up doc? "+blockLocations);
 			jobMapInfo.put(jobID, new MapInfo(blockLocations));
 			
 			/**Create a jobResponsenit Map and keep it ready for sending responses**/
@@ -208,11 +215,14 @@ public class JTrackerDriver implements IJobTracker {
 	}
 
 	@Override
-	public synchronized byte[] heartBeat(byte[] heartBeatRequestByte) {
+	public byte[] heartBeat(byte[] heartBeatRequestByte) {
 		
 		/**Heart beat is called by the task trackers every second, they send the number of map threads and reduce thread slots free **/
 		
 		System.out.println("HeartBeat got called");
+		
+//		if(true)
+//			return null;
 		
 		HeartBeatResponse.Builder hBeatResponseObj = null;
 		
@@ -272,7 +282,7 @@ public class JTrackerDriver implements IJobTracker {
 					com.mapreduce.misc.MapReduce.BlockLocations.Builder blockLocationObj = com.mapreduce.misc.MapReduce.BlockLocations.newBuilder();
 					blockLocationObj.setBlockNumber(mapQueueItem.inputBlock.getBlockNumber());//blocklocation => (blockNumber + datanodelocations)
 					
-					List<com.mapreduce.hdfsutils.Hdfs.DataNodeLocation> dataNodeLocations = mapQueueItem.inputBlock.getLocationsList();
+					List<com.hdfs.namenode.Hdfs.DataNodeLocation> dataNodeLocations = mapQueueItem.inputBlock.getLocationsList();
 					
 					for(int k=0;k<dataNodeLocations.size();k++)
 					{
@@ -501,13 +511,18 @@ public class JTrackerDriver implements IJobTracker {
 		try 
 		{
 			Registry registry=LocateRegistry.getRegistry(Constants.NAME_NODE_IP,Registry.REGISTRY_PORT);
+//			System.out.println("It's here");
 			INameNode nameStub;
 			nameStub=(INameNode) registry.lookup(Constants.NAME_NODE);
+//			System.out.println("It's here too");
 			responseArray = nameStub.openFile(openFileReqObj.build().toByteArray());
+
+
 			
 			try
 			{
 				OpenFileResponse responseObj = OpenFileResponse.parseFrom(responseArray);
+				System.out.println(responseObj);
 				if(responseObj.getStatus()==Constants.STATUS_NOT_FOUND)
 				{
 					System.out.println("File not found fatal error, Exception in JT CLASS: getBlockNums functions");
@@ -564,7 +579,7 @@ public class JTrackerDriver implements IJobTracker {
 			
 		}
 		
-		
+		System.out.println("Number of blocks are  "+blockLocs.size());
 		return blockLocs;
 		
 	}

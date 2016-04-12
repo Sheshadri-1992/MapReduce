@@ -3,7 +3,7 @@ package com.mapreduce.jobtracker;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
+import com.hdfs.namenode.Hdfs.BlockLocations;
 
 
 public class MapInfo {
@@ -25,7 +25,7 @@ public class MapInfo {
 	
 	List<TaskInfo> tasks;  // index is taskID
 	
-	public MapInfo(ArrayList<BlockLocations> blocks)
+	public MapInfo(List<BlockLocations> blocks)
 	{
 		tasks  = new ArrayList<>();
 		for(int i=0;i<blocks.size();i++)
