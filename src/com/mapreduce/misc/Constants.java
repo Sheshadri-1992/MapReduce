@@ -36,4 +36,6 @@ public final class Constants {
 	public static final String  JT_CONF_FILE = "JTConf";
 	public static final long JOB_STATUS_FREQ = 5000;
 	
+	public static final int TT_PORT = 13000;
+	
 }
