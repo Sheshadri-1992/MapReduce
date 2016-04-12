@@ -28,10 +28,10 @@ import com.mapreduce.misc.Constants;
 
 public class PutFile implements Runnable {
 
-	public static String fileName;
-	public static long FILESIZE;
-	public static FileInputStream fis;
-	public static String threadName;
+	public String fileName;
+	public long FILESIZE;
+	public FileInputStream fis;
+	public String threadName;
 	private Thread t;
 
 	public PutFile(String threadNameArgs,String fileNameArgs) {
@@ -196,7 +196,7 @@ public class PutFile implements Runnable {
 	}
 
 	/**Read 32MB size of data from the provided input file **/
-	public static byte[] read32MBfromFile(int offset,String fileName)
+	public byte[] read32MBfromFile(int offset,String fileName)
 	{
 		
 		System.out.println("offset is "+offset);
@@ -252,7 +252,7 @@ public class PutFile implements Runnable {
 	
 	
 	/**Returns the number of blocks the file to which the file gets divided into **/
-	public static int getNumberOfBlocks(String fileName)
+	public int getNumberOfBlocks(String fileName)
 	{
 		File inputFile = new File(fileName);
 		if(!inputFile.exists())
