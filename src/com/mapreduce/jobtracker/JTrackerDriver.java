@@ -258,7 +258,7 @@ public class JTrackerDriver implements IJobTracker {
 				//then schedule a task until the queue gets over or the threads get lesser
 				int numOfMapThreads = numOfMapSlot;
 				
-				int index = 0;
+//				int index = 0;
 				
 				while(numOfMapThreads>0 && mapQueue.hasItems())
 				{
@@ -288,11 +288,11 @@ public class JTrackerDriver implements IJobTracker {
 					hBeatResponseObj.addMapTasks(mapTaskInfoObj); //because this is a repeated field in proto
 					
 					numOfMapThreads--;
-					index++;
+//					index++;
 					//increment that job status structure
 					jobResponseUnitMap.get(mapQueueItem.jobID).numMapTasksStarted++;
 				}
-				index = 0;
+//				index = 0;
 				
 			}
 		}// map queue ends here
@@ -303,7 +303,7 @@ public class JTrackerDriver implements IJobTracker {
 			{
 				int numOfReduceThreads= numOfReduceSlot;
 				
-				int index = 0;
+//				int index = 0;
 				
 				while(numOfReduceThreads>0 && reduceQueue.hasItems())
 				{
@@ -320,7 +320,7 @@ public class JTrackerDriver implements IJobTracker {
 					hBeatResponseObj.addReduceTasks(reducerTaskObj);
 					
 					numOfReduceThreads--;
-					index++;
+//					index++;
 					//increment the status of the jobstatus response
 					jobResponseUnitMap.get(redQueueItem.jobID).numReduceTasksStarted++;
 				}
