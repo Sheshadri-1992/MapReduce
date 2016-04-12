@@ -1,4 +1,4 @@
-package com.mapreduce.hdfsutils;
+package com.hdfs.namenode;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

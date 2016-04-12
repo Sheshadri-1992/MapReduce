@@ -3,7 +3,7 @@ package com.mapreduce.jobtracker;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hdfs.namenode.Hdfs.BlockLocations;
+import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
 
 
 public class MapInfo {

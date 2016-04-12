@@ -13,11 +13,11 @@ import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hdfs.namenode.INameNode;
-import com.hdfs.namenode.Hdfs.BlockLocationRequest;
-import com.hdfs.namenode.Hdfs.BlockLocationResponse;
-import com.hdfs.namenode.Hdfs.BlockLocations;
-import com.hdfs.namenode.Hdfs.OpenFileRequest;
-import com.hdfs.namenode.Hdfs.OpenFileResponse;
+import com.mapreduce.hdfsutils.Hdfs.BlockLocationRequest;
+import com.mapreduce.hdfsutils.Hdfs.BlockLocationResponse;
+import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
+import com.mapreduce.hdfsutils.Hdfs.OpenFileRequest;
+import com.mapreduce.hdfsutils.Hdfs.OpenFileResponse;
 import com.mapreduce.jobtracker.MapInfo.TaskInfo;
 import com.mapreduce.jobtracker.ReduceInfo.RedTaskInfo;
 import com.mapreduce.misc.Constants;
@@ -282,7 +282,7 @@ public class JTrackerDriver implements IJobTracker {
 					com.mapreduce.misc.MapReduce.BlockLocations.Builder blockLocationObj = com.mapreduce.misc.MapReduce.BlockLocations.newBuilder();
 					blockLocationObj.setBlockNumber(mapQueueItem.inputBlock.getBlockNumber());//blocklocation => (blockNumber + datanodelocations)
 					
-					List<com.hdfs.namenode.Hdfs.DataNodeLocation> dataNodeLocations = mapQueueItem.inputBlock.getLocationsList();
+					List<com.mapreduce.hdfsutils.Hdfs.DataNodeLocation> dataNodeLocations = mapQueueItem.inputBlock.getLocationsList();
 					
 					for(int k=0;k<dataNodeLocations.size();k++)
 					{

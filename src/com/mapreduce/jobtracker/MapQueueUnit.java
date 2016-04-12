@@ -1,6 +1,6 @@
 package com.mapreduce.jobtracker;
 
-import com.hdfs.namenode.Hdfs.BlockLocations;
+import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
 
 public class MapQueueUnit {
 

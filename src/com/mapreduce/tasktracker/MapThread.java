@@ -138,7 +138,7 @@ class MapThread implements Runnable{
 		
 		int dataNodeCounter=0;
 		
-		com.mapreduce.hdfsutils.IDataNode dataStub=null;
+		com.hdfs.datanode.IDataNode dataStub=null;
 		
 		boolean gotDataNodeFlag=false;
 		
@@ -154,7 +154,7 @@ class MapThread implements Runnable{
 											
 				Registry registry2=LocateRegistry.getRegistry(ip,port);					
 				
-				dataStub = (com.mapreduce.hdfsutils.IDataNode) registry2.lookup(com.mapreduce.misc.Constants.DATA_NODE_ID);
+				dataStub = (com.hdfs.datanode.IDataNode) registry2.lookup(com.mapreduce.misc.Constants.DATA_NODE_ID);
 				gotDataNodeFlag=true;
 			}
 			catch (RemoteException e) {
