@@ -585,7 +585,7 @@ public class JTrackerDriver implements IJobTracker {
 			Registry register=LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
 			IJobTracker stub = (IJobTracker) UnicastRemoteObject.exportObject(obj,Registry.REGISTRY_PORT);
 			try {
-				register.bind(Constants.JOB_TRACKER_IP, stub);
+				register.bind(Constants.JOB_TRACKER, stub);
 				
 				System.out.println("JOB TRACKER started succesfully");
 			} catch (AlreadyBoundException e) {
