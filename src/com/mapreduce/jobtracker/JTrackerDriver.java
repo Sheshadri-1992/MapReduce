@@ -273,9 +273,10 @@ public class JTrackerDriver implements IJobTracker {
 				
 				while(numOfMapThreads>0 && mapQueue.hasItems())
 				{
-					MapQueueUnit  mapQueueItem = mapQueue.dequeue(); //thid hsndles queue condition
+					MapQueueUnit  mapQueueItem = mapQueue.dequeue(); //this handles queue condition
 					
 					MapTaskInfo.Builder mapTaskInfoObj = MapTaskInfo.newBuilder();
+//					System.out.println("This is the mapQueue item "+mapQueueItem.toString());
 					mapTaskInfoObj.setJobId(mapQueueItem.jobID);
 					mapTaskInfoObj.setTaskId(mapQueueItem.taskID);
 					mapTaskInfoObj.setMapName(mapQueueItem.mapName);
@@ -418,7 +419,7 @@ public class JTrackerDriver implements IJobTracker {
 				 
 				 mapOutputFiles.get(localJobID).add(mapTaskStObj.getMapOutputFile()); //added output File for the completed task
 				 
-				 System.out.println("This file is sent by Task Tracker "+mapOutputFiles.toString());
+//				 System.out.println("This file is sent by Task Tracker "+mapOutputFiles.toString());
 				 if(jobMapInfo.get(localJobID).isAllTaskCompleted()==true)
 				 {
 					 //schedule reduce task for that job
