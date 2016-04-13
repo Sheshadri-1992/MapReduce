@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hdfs.namenode.INameNode;
@@ -219,7 +220,7 @@ public class JTrackerDriver implements IJobTracker {
 		
 		/**Heart beat is called by the task trackers every second, they send the number of map threads and reduce thread slots free **/
 		
-		System.out.println("HeartBeat got called");
+//		System.out.println("HeartBeat got called");
 		
 //		if(true)
 //			return null;
@@ -413,8 +414,11 @@ public class JTrackerDriver implements IJobTracker {
 				 
 				 jobMapInfo.get(localJobID).updateStatus(taskID); //update the status of completion for that task to be true
 				 
+				 System.out.println("File sent by seth is "+mapTaskStObj.getMapOutputFile());
+				 
 				 mapOutputFiles.get(localJobID).add(mapTaskStObj.getMapOutputFile()); //added output File for the completed task
 				 
+				 System.out.println("This file is sent by Task Tracker "+mapOutputFiles.toString());
 				 if(jobMapInfo.get(localJobID).isAllTaskCompleted()==true)
 				 {
 					 //schedule reduce task for that job
@@ -431,6 +435,7 @@ public class JTrackerDriver implements IJobTracker {
 
 	static void populateReduceQueue(int localJobID) {
 	
+		System.out.println("Entered here");
 		//first update the jobReduceInfo structure
 		ReduceInfo redInfoObj = new ReduceInfo();
 		//need number of reducers sent from the client
@@ -469,13 +474,18 @@ public class JTrackerDriver implements IJobTracker {
 				redInfoObj.addTask(divLines, reduceOutputFiles.get(localJobID).get(i));//no of map output files, per reducer and its outputfile name
 				
 		}
+		jobReduceInfo.put(localJobID, redInfoObj);
 
+//		System.out.println("Check here "+jobReduceInfo.toString());
+		
 		/**now redInfo Object has a job ID and number of tasks in it
 		 * we have to put it into the reduceQueue
 		 *  **/
 		
 		
 		ReduceInfo reduceInfoObj = jobReduceInfo.get(localJobID);
+		
+//		System.out.println("Finally "+reduceInfoObj.tasks);
 		
 		List<RedTaskInfo> redTasks= reduceInfoObj.tasks;
 		
@@ -511,10 +521,10 @@ public class JTrackerDriver implements IJobTracker {
 		try 
 		{
 			Registry registry=LocateRegistry.getRegistry(Constants.NAME_NODE_IP,Registry.REGISTRY_PORT);
-//			System.out.println("It's here");
+			System.out.println("It's here");
 			INameNode nameStub;
 			nameStub=(INameNode) registry.lookup(Constants.NAME_NODE);
-//			System.out.println("It's here too");
+			System.out.println("It's here too");
 			responseArray = nameStub.openFile(openFileReqObj.build().toByteArray());
 
 
@@ -619,7 +629,8 @@ public class JTrackerDriver implements IJobTracker {
 	/**Initialize all data structures **/
 	static void initializeDataStructures()
 	{
-		jobID = 0; //because there will be no jobs in the queue in the beginning
+		Random randObj = new Random();
+		jobID = Math.abs(randObj.nextInt()); //because there will be no jobs in the queue in the beginning
 		jobRequests = new HashMap<>();
 		jobStatus = new HashMap<Integer, JobStatusResponse>();
 		jobMapInfo = new HashMap<>();
