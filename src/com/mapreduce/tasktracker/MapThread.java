@@ -1,8 +1,11 @@
 package com.mapreduce.tasktracker;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,15 +18,17 @@ import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.mapreduce.hdfsutils.PutFile;
+import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MapReduce.BlockLocations;
 import com.mapreduce.misc.MapReduce.DataNodeLocation;
 import com.mapreduce.misc.MapReduce.MapTaskInfo;
-import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MyFileWriter;
 
 class MapThread implements Runnable{
 
 	MapTaskInfo info;
+	Method mapMethod;
+	Object mapInstance;
 	
 	public MapThread(MapTaskInfo info) {
 		// TODO Auto-generated constructor stub
@@ -44,6 +49,45 @@ class MapThread implements Runnable{
 		 * update the status of the task
 		 * remove the task which is completed after heart beat req;
 		 */
+		
+		 /* Load jar dynamically */
+		
+		File f = new File(Constants.GREP_MAPRED_JAR);
+	    URLClassLoader urlCl;
+		try {
+			urlCl = new URLClassLoader(new URL[] { f.toURL()},System.class.getClassLoader());
+			Class mapClass;
+			mapClass = urlCl.loadClass(info.getMapName());
+			urlCl.close();
+		    mapInstance =  mapClass.newInstance();
+		    mapMethod = mapClass.getMethod("map",new Class[] { String.class ,String.class});
+		    
+		    
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+			
+		              
+		
+		
+		
 		List<BlockLocations> list = info.getInputBlocksList();
 		
 		try {
@@ -67,7 +111,7 @@ class MapThread implements Runnable{
 			
 			for(String line: lines)
 			{
-				String output = callMapper(info.getMapName(),line,word);
+				String output = callMapper(line,word);
 				if(output!=null)
 				{
 					sb.append(output);
@@ -115,14 +159,30 @@ class MapThread implements Runnable{
 		
 	}
 
-	private String callMapper(String mapClass,String line, String word) {
+	private String callMapper(String line, String word) {
 		// TODO Auto-generated method stub
 		
 		/*replace this by dynamic jar */
+		String val = null;
 		
-		if(line.contains(word))
-			return line;
-		return null;
+		try {
+		   val = (String)mapMethod.invoke(mapInstance, new Object[] { line,word});
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return val;
+		
+//		if(line.contains(word))
+//			return line;
+//		return null;
 		
 		
 	}
