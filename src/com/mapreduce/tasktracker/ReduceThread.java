@@ -1,5 +1,6 @@
 package com.mapreduce.tasktracker;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.mapreduce.hdfsutils.GetFile;
@@ -84,6 +85,25 @@ class ReduceThread implements Runnable{
 		
 		TTrackerDriver.updateReduceStatus(info);		
 
+		
+		deleteLocalMapFiles(LOCAL_MAP_OUT, info.getMapOutputFilesList().size());
+		deleteLocalReduceFile(info.getOutputFile());
+		
+		
+	}
+	
+	
+	private void deleteLocalReduceFile(String outputFile) {
+		// TODO Auto-generated method stub
+		boolean status = new File(outputFile).delete();
+	}
+
+	public void deleteLocalMapFiles(String fileName,int size)
+	{
+		for(int i=0;i<size;i++)
+		{
+			boolean status = new File(fileName+i).delete();
+		}
 		
 		
 	}

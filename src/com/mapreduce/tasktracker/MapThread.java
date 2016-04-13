@@ -1,6 +1,15 @@
 package com.mapreduce.tasktracker;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -9,6 +18,7 @@ import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.mapreduce.hdfsutils.PutFile;
+import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MapReduce.BlockLocations;
 import com.mapreduce.misc.MapReduce.DataNodeLocation;
 import com.mapreduce.misc.MapReduce.MapTaskInfo;
@@ -17,6 +27,8 @@ import com.mapreduce.misc.MyFileWriter;
 class MapThread implements Runnable{
 
 	MapTaskInfo info;
+	Method mapMethod;
+	Object mapInstance;
 	
 	public MapThread(MapTaskInfo info) {
 		// TODO Auto-generated constructor stub
@@ -37,18 +49,69 @@ class MapThread implements Runnable{
 		 * update the status of the task
 		 * remove the task which is completed after heart beat req;
 		 */
+		
+		 /* Load jar dynamically */
+		
+		File f = new File(Constants.GREP_MAPRED_JAR);
+	    URLClassLoader urlCl;
+		try {
+			urlCl = new URLClassLoader(new URL[] { f.toURL()},System.class.getClassLoader());
+			Class mapClass;
+			mapClass = urlCl.loadClass(info.getMapName());
+			urlCl.close();
+		    mapInstance =  mapClass.newInstance();
+		    mapMethod = mapClass.getMethod("map",new Class[] { String.class ,String.class});
+		    
+		    
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+			
+		              
+		
+		
+		
 		List<BlockLocations> list = info.getInputBlocksList();
 		
 		try {
 			String input = getBlockContents(list.get(0));
-			String word = "1054036381";
+			String word = "";
+			
+			Path path = Paths.get(Constants.GREP_INPUT_FILE);
+			byte[] newByteArray = null;
+			try {
+				newByteArray = Files.readAllBytes(path);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			word = new String(newByteArray, StandardCharsets.UTF_8);
+			
+		
 			String lines[] = input.split("\n");
 			
 			StringBuilder sb = new StringBuilder();
 			
 			for(String line: lines)
 			{
-				String output = callMapper(info.getMapName(),line,word);
+				String output = callMapper(line,word);
 				if(output!=null)
 				{
 					sb.append(output);
@@ -77,6 +140,8 @@ class MapThread implements Runnable{
 			
 			TTrackerDriver.updateMapStatus(info);
 			
+			deleteOutputFiles();
+			
 			/*u
 			 * 
 			 * update the status
@@ -94,14 +159,30 @@ class MapThread implements Runnable{
 		
 	}
 
-	private String callMapper(String mapClass,String line, String word) {
+	private String callMapper(String line, String word) {
 		// TODO Auto-generated method stub
 		
 		/*replace this by dynamic jar */
+		String val = null;
 		
-		if(line.contains(word))
-			return line;
-		return null;
+		try {
+		   val = (String)mapMethod.invoke(mapInstance, new Object[] { line,word});
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return val;
+		
+//		if(line.contains(word))
+//			return line;
+//		return null;
 		
 		
 	}
@@ -112,6 +193,21 @@ class MapThread implements Runnable{
 		 return "job_"+jobID.toString()+"_map_"+taskID.toString();
 	 }
 
+	
+	public void deleteOutputFiles()
+	{
+		String fileName = getMapOutFileName(info.getJobId(),info.getTaskId());
+		
+		boolean success = new File(fileName).delete();
+	     if (success) {
+	        
+	     }
+		
+		
+	}
+	
+	
+	
 	private String getBlockContents(BlockLocations blockLocations) throws NotBoundException, RemoteException, InvalidProtocolBufferException {
 		// TODO Auto-generated method stub
 		
