@@ -1,5 +1,10 @@
 package com.mapreduce.jobtracker;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -33,6 +38,8 @@ import com.mapreduce.misc.MapReduce.MapTaskInfo;
 import com.mapreduce.misc.MapReduce.MapTaskStatus;
 import com.mapreduce.misc.MapReduce.ReduceTaskStatus;
 import com.mapreduce.misc.MapReduce.ReducerTaskInfo;
+import com.mapreduce.misc.MyFileReader;
+import com.mapreduce.misc.MyFileWriter;
 /**
  * 
  * @author master
@@ -79,7 +86,7 @@ public class JTrackerDriver implements IJobTracker {
         /**call bind to registry **/
         bindToRegistry();
         
-		
+     
 	}
 	
 	
@@ -413,6 +420,11 @@ public class JTrackerDriver implements IJobTracker {
 				 int taskID = mapTaskStObj.getTaskId();
 				 int localJobID = mapTaskStObj.getJobId();
 				 
+				 //code changed here Shesh 12:38AM
+				 MapInfo localMapInfo = jobMapInfo.get(localJobID);
+				 if(localMapInfo.tasks.get(taskID).status==true)
+					 continue;
+				 
 				 jobMapInfo.get(localJobID).updateStatus(taskID); //update the status of completion for that task to be true
 				 
 				 System.out.println("File sent by seth is "+mapTaskStObj.getMapOutputFile());
@@ -596,10 +608,10 @@ public class JTrackerDriver implements IJobTracker {
 	}
 	
 	/**Generate job ID **/
-	static void generateJobID()
-	{
-		jobID++;
-	}
+//	static void generateJobID()
+//	{
+//		jobID++;
+//	}
 	
 	/**bind to registry method **/
 	static void bindToRegistry()
@@ -630,8 +642,7 @@ public class JTrackerDriver implements IJobTracker {
 	/**Initialize all data structures **/
 	static void initializeDataStructures()
 	{
-		Random randObj = new Random();
-		jobID = Math.abs(randObj.nextInt()); //because there will be no jobs in the queue in the beginning
+		jobID =0; //because there will be no jobs in the queue in the beginning
 		jobRequests = new HashMap<>();
 		jobStatus = new HashMap<Integer, JobStatusResponse>();
 		jobMapInfo = new HashMap<>();
@@ -644,4 +655,27 @@ public class JTrackerDriver implements IJobTracker {
 	}
 	
 	
+	public static synchronized void generateJobID()
+	{
+		MyFileReader myReader = new MyFileReader(Constants.JOB_ID_FILE);
+		myReader.openFile();
+		
+		try {
+			String line = myReader.buff_reader.readLine();
+			Integer value = Integer.parseInt(line);
+			value++;
+			jobID = value;
+			
+			PrintWriter pw;
+			
+			pw = new PrintWriter(new FileWriter(Constants.JOB_ID_FILE));
+		    pw.write(value.toString());
+	        pw.close();
+			
+		} catch (IOException e) {
+			 
+			e.printStackTrace();
+		}
+		myReader.closeFile();
+	}
 }

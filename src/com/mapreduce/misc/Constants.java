@@ -32,6 +32,7 @@ public final class Constants {
 	public static final String JOB_TRACKER_IP = "10.0.0.2";
 	public static final String REDUCE_FILE = "reduceFile";
 	public static final String REDUCER_INTERMEDIATE = "RED_INTER_";
+	public static final String JOB_ID_FILE = "jobID";
 	
 	public static final String  JT_CONF_FILE = "JTConf";
 	public static final long JOB_STATUS_FREQ = 5000;
