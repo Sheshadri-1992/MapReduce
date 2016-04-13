@@ -16,4 +16,10 @@ public class MapQueueUnit {
 		mapName = mapNameArgs;
 		inputBlock = inputBlockArgs;
 	}
+
+	@Override
+	public String toString() {
+		return "MapQueueUnit [jobID=" + jobID + ", taskID=" + taskID + ", mapName=" + mapName + ", inputBlock="
+				+ inputBlock + "]";
+	}
 }
