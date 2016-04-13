@@ -8,6 +8,8 @@ import java.rmi.registry.Registry;
 import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hdfs.datanode.IDataNode;
+import com.hdfs.namenode.INameNode;
 import com.mapreduce.hdfsutils.Hdfs.BlockLocationRequest;
 import com.mapreduce.hdfsutils.Hdfs.BlockLocationResponse;
 import com.mapreduce.hdfsutils.Hdfs.BlockLocations;

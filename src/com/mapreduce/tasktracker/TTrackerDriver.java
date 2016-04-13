@@ -111,12 +111,18 @@ public class TTrackerDriver {
 						
 						byte [] resAray =   jtStub.heartBeat(req.build().toByteArray());
 						
-						System.out.print("b");
+//						System.out.print(mapTaskStatus);
+//						System.out.println(redTaskStatus);
+						
+//						System.out.print("b");
 						removeCompletedMapTask();
 						removeCompletedRedTask();
 						
 						try {
 							HeartBeatResponse res = HeartBeatResponse.parseFrom(resAray);
+							
+							System.out.println("Map Tasks" + res.getMapTasksList());
+							System.out.println("Reduce Tasks" + res.getReduceTasksList());
 							
 							if(res.getMapTasksList().size()!=0)
 							{
@@ -311,27 +317,39 @@ public class TTrackerDriver {
 	 
 	 static synchronized void removeCompletedMapTask()
 	 {
+		 ArrayList<MapTaskStatus> thisMapStatus = new ArrayList<>();
+		 
 		 for(int i=0;i<mapTaskStatus.size();i++)
 		 {
 			 if(mapTaskStatus.get(i).getTaskCompleted())
 			 {
-				 mapTaskStatus.remove(i);
-				 i--;
+				
+			 }else
+			 {
+				 thisMapStatus.add(mapTaskStatus.get(i));
 			 }
 		 }
+		 
+		 mapTaskStatus = thisMapStatus;
 	 }
 	 
 	 
 	 static synchronized void removeCompletedRedTask()
 	 {
+		ArrayList<ReduceTaskStatus> thisRedStatus = new ArrayList<>();
+		 
 		 for(int i=0;i<redTaskStatus.size();i++)
 		 {
 			 if(redTaskStatus.get(i).getTaskCompleted())
 			 {
-				 redTaskStatus.remove(i);
-				 i--;
+				
+			 }else
+			 {
+				 thisRedStatus.add(redTaskStatus.get(i));
 			 }
 		 }
+		 
+		 redTaskStatus = thisRedStatus;
 	 }
 	 
 	 public static synchronized void updateNumMapThread(int i)

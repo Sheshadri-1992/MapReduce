@@ -41,7 +41,7 @@ class MapThread implements Runnable{
 		
 		try {
 			String input = getBlockContents(list.get(0));
-			String word = "Hello";
+			String word = "1054036381";
 			String lines[] = input.split("\n");
 			
 			StringBuilder sb = new StringBuilder();
@@ -55,7 +55,7 @@ class MapThread implements Runnable{
 					sb.append("\n");
 				}
 			}
-			
+//			System.out.println("String "+sb.toString());
 			
 			
 			
@@ -181,7 +181,8 @@ class MapThread implements Runnable{
 		}
 		
 		responseArray = readBlockResObj.getData(0).toByteArray();						
-		String str = new String(responseArray, StandardCharsets.UTF_8);						
+		String str = new String(responseArray, StandardCharsets.UTF_8);			
+//		System.out.println("String content    "+str);
 		return str;						
 		
 			

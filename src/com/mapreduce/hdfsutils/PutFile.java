@@ -15,6 +15,8 @@ import java.util.List;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hdfs.datanode.IDataNode;
+import com.hdfs.namenode.INameNode;
 import com.mapreduce.hdfsutils.Hdfs.AssignBlockRequest;
 import com.mapreduce.hdfsutils.Hdfs.AssignBlockResponse;
 import com.mapreduce.hdfsutils.Hdfs.BlockLocations;
