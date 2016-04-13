@@ -1,6 +1,12 @@
 package com.mapreduce.tasktracker;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -12,6 +18,7 @@ import com.mapreduce.hdfsutils.PutFile;
 import com.mapreduce.misc.MapReduce.BlockLocations;
 import com.mapreduce.misc.MapReduce.DataNodeLocation;
 import com.mapreduce.misc.MapReduce.MapTaskInfo;
+import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MyFileWriter;
 
 class MapThread implements Runnable{
@@ -41,7 +48,19 @@ class MapThread implements Runnable{
 		
 		try {
 			String input = getBlockContents(list.get(0));
-			String word = "1054036381";
+			String word = "";
+			
+			Path path = Paths.get(Constants.GREP_INPUT_FILE);
+			byte[] newByteArray = null;
+			try {
+				newByteArray = Files.readAllBytes(path);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			word = new String(newByteArray, StandardCharsets.UTF_8);
+			
+		
 			String lines[] = input.split("\n");
 			
 			StringBuilder sb = new StringBuilder();
@@ -76,6 +95,8 @@ class MapThread implements Runnable{
 			}
 			
 			TTrackerDriver.updateMapStatus(info);
+			
+			deleteOutputFiles();
 			
 			/*u
 			 * 
@@ -112,6 +133,21 @@ class MapThread implements Runnable{
 		 return "job_"+jobID.toString()+"_map_"+taskID.toString();
 	 }
 
+	
+	public void deleteOutputFiles()
+	{
+		String fileName = getMapOutFileName(info.getJobId(),info.getTaskId());
+		
+		boolean success = new File(fileName).delete();
+	     if (success) {
+	        
+	     }
+		
+		
+	}
+	
+	
+	
 	private String getBlockContents(BlockLocations blockLocations) throws NotBoundException, RemoteException, InvalidProtocolBufferException {
 		// TODO Auto-generated method stub
 		

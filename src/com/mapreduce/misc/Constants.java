@@ -38,4 +38,6 @@ public final class Constants {
 	
 	public static final int TT_PORT = 13000;
 	
+	public static final String GREP_INPUT_FILE = "wordInpFile";
+	
 }
