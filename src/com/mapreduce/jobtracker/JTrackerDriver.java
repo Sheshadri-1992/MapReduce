@@ -1,7 +1,5 @@
 package com.mapreduce.jobtracker;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.hdfs.namenode.INameNode;
@@ -39,7 +36,6 @@ import com.mapreduce.misc.MapReduce.MapTaskStatus;
 import com.mapreduce.misc.MapReduce.ReduceTaskStatus;
 import com.mapreduce.misc.MapReduce.ReducerTaskInfo;
 import com.mapreduce.misc.MyFileReader;
-import com.mapreduce.misc.MyFileWriter;
 /**
  * 
  * @author master
@@ -55,7 +51,7 @@ import com.mapreduce.misc.MyFileWriter;
 
 public class JTrackerDriver implements IJobTracker {
 
-	public static int jobID;
+
 	
 	public static HashMap<Integer, JobSubmitRequest> jobRequests;//this contains mapper name
 	public static HashMap<Integer,JobResponseUnit> jobResponseUnitMap;
@@ -96,13 +92,17 @@ public class JTrackerDriver implements IJobTracker {
 	public byte[] jobSubmit(byte[] jobSubmitRequest) {
 		// TODO Auto-generated method stub
 		System.out.println("Job Submit got called");
+		int jobID = generateJobID();
 		
-//		System.exit(0);
+		System.out.println("JoB id is "+jobID);
+		
+//		if(true)
+//			return null;
 		
 		try {
 			JobSubmitRequest jSubReqObj = JobSubmitRequest.parseFrom(jobSubmitRequest);
 			
-			generateJobID();
+			
 			
 			jobRequests.put(jobID, jSubReqObj); // job requests has a name of mapper, reducer, number of mapper,redcucer everything
 									
@@ -111,7 +111,16 @@ public class JTrackerDriver implements IJobTracker {
 			
 			/**next get the number of blocks from name node server**/
 			List<BlockLocations> blockLocations = getBlockLocations(jSubReqObj.getInputFile());
-			System.out.println("What's up doc? "+blockLocations);
+			
+			if(blockLocations == null)
+			{
+				JobSubmitResponse.Builder jobStatusResObj = JobSubmitResponse.newBuilder();
+				jobStatusResObj.setJobId(jobID);
+				jobStatusResObj.setStatus(Constants.STATUS_FAILED); //STATUS HARD CODED
+				return jobStatusResObj.build().toByteArray();
+			}
+			
+//			System.out.println("What's up doc? "+blockLocations);
 			jobMapInfo.put(jobID, new MapInfo(blockLocations));
 			
 			/**Create a jobResponsenit Map and keep it ready for sending responses**/
@@ -167,8 +176,10 @@ public class JTrackerDriver implements IJobTracker {
 
 
 	/**This method populates the queue of the mapper **/
-	static void populateMapQueue(int jobIDArgs,String mapperName) {
+	void populateMapQueue(int jobIDArgs,String mapperName) {
 		
+		int noOfItemsAdded = 0;
+		System.out.println("Entered Job ID is "+jobIDArgs);
 		MapInfo mapInfoObj = jobMapInfo.get(jobIDArgs);
 		
 		List<TaskInfo> mapTasks= mapInfoObj.tasks;
@@ -180,7 +191,11 @@ public class JTrackerDriver implements IJobTracker {
 			TaskInfo taskObj= itr.next();
 			MapQueueUnit mapQueueObject = new MapQueueUnit(jobIDArgs,taskObj.taskID,mapperName,taskObj.blockLocations);
 			mapQueue.enqueue(mapQueueObject);
+			noOfItemsAdded++;
 		}
+		
+	
+		System.out.println("The job ID is "+jobIDArgs+" The number of items added are : "+noOfItemsAdded);
 		
 	}
 
@@ -190,7 +205,7 @@ public class JTrackerDriver implements IJobTracker {
 	@Override
 	public byte[] getJobStatus(byte[] jobStatusRequestByte) {
 		// TODO Auto-generated method stub
-		System.out.println("getJobStatus got called");
+//		System.out.println("getJobStatus got called");
 		
 		JobResponseUnit jobResponseObj = null;
 		
@@ -211,7 +226,7 @@ public class JTrackerDriver implements IJobTracker {
 			jStatusResObj.setTotalMapTasks(jobResponseObj.totalMapTasks);
 			jStatusResObj.setNumMapTasksStarted(jobResponseObj.numMapTasksStarted);
 			jStatusResObj.setTotalReduceTasks(jobResponseObj.totalReduceTasks);
-			jStatusResObj.setNumReduceTasksStarted(jobResponseObj.numMapTasksStarted);
+			jStatusResObj.setNumReduceTasksStarted(jobResponseObj.numReduceTasksStarted);
 		}
 		catch (InvalidProtocolBufferException e) {
 			 
@@ -394,6 +409,7 @@ public class JTrackerDriver implements IJobTracker {
 		//The file names are available to the Job Tracker, it just has to write it as a single file
 		WriteOutputFile outputFileObj = new WriteOutputFile(jobRequests.get(localJobID).getOutputFile(),reduceOutputFiles.get(localJobID) );
 		outputFileObj.writeIntoHDFS();
+		System.out.println("Have you seen this file?? -->"+ jobRequests.get(localJobID).getOutputFile());
 		
 	}
 
@@ -420,14 +436,14 @@ public class JTrackerDriver implements IJobTracker {
 				 int taskID = mapTaskStObj.getTaskId();
 				 int localJobID = mapTaskStObj.getJobId();
 				 
-				 //code changed here Shesh 12:38AM
-				 MapInfo localMapInfo = jobMapInfo.get(localJobID);
-				 if(localMapInfo.tasks.get(taskID).status==true)
-					 continue;
+//				 //code changed here Shesh 12:38AM
+//				 MapInfo localMapInfo = jobMapInfo.get(localJobID);
+//				 if(localMapInfo.tasks.get(taskID).status==true)
+//					 continue;
 				 
 				 jobMapInfo.get(localJobID).updateStatus(taskID); //update the status of completion for that task to be true
 				 
-				 System.out.println("File sent by seth is "+mapTaskStObj.getMapOutputFile());
+//				 System.out.println("File sent by Task Tracker is "+mapTaskStObj.getMapOutputFile());
 				 
 				 mapOutputFiles.get(localJobID).add(mapTaskStObj.getMapOutputFile()); //added output File for the completed task
 				 
@@ -448,7 +464,7 @@ public class JTrackerDriver implements IJobTracker {
 
 	static void populateReduceQueue(int localJobID) {
 	
-		System.out.println("Entered here");
+		System.out.println("Populating Reduce Queue");
 		//first update the jobReduceInfo structure
 		ReduceInfo redInfoObj = new ReduceInfo();
 		//need number of reducers sent from the client
@@ -484,6 +500,8 @@ public class JTrackerDriver implements IJobTracker {
 					}
 				}
 				
+//				System.out.println()
+				
 				redInfoObj.addTask(divLines, reduceOutputFiles.get(localJobID).get(i));//no of map output files, per reducer and its outputfile name
 				
 		}
@@ -504,14 +522,17 @@ public class JTrackerDriver implements IJobTracker {
 		
 		Iterator<RedTaskInfo> itr = redTasks.iterator();
 		
+		int noOfTaksInQueue = 0;
+		
 		while(itr.hasNext())
 		{
 			RedTaskInfo taskObj= itr.next();
 			ReduceQueueUnit redQueueObject = new ReduceQueueUnit(localJobID, taskObj.taskID, reducerName, taskObj.mapOutFiles, taskObj.outputFile);
 			reduceQueue.enqueue(redQueueObject);
+			noOfTaksInQueue++;
 		}
 		
-		
+		System.out.println("No of reducer tasks put into queue are "+noOfTaksInQueue);
 		
 	}
 
@@ -534,22 +555,20 @@ public class JTrackerDriver implements IJobTracker {
 		try 
 		{
 			Registry registry=LocateRegistry.getRegistry(Constants.NAME_NODE_IP,Registry.REGISTRY_PORT);
-			System.out.println("It's here");
 			INameNode nameStub;
 			nameStub=(INameNode) registry.lookup(Constants.NAME_NODE);
-			System.out.println("It's here too");
+			
 			responseArray = nameStub.openFile(openFileReqObj.build().toByteArray());
-
-
 			
 			try
 			{
 				OpenFileResponse responseObj = OpenFileResponse.parseFrom(responseArray);
-				System.out.println(responseObj);
+//				System.out.println(responseObj);
 				if(responseObj.getStatus()==Constants.STATUS_NOT_FOUND)
 				{
 					System.out.println("File not found fatal error, Exception in JT CLASS: getBlockNums functions");
-					System.exit(0);
+					return null;
+//					System.exit(0);
 				}
 				
 				List<Integer> blockNums = responseObj.getBlockNumsList();
@@ -642,7 +661,6 @@ public class JTrackerDriver implements IJobTracker {
 	/**Initialize all data structures **/
 	static void initializeDataStructures()
 	{
-		jobID =0; //because there will be no jobs in the queue in the beginning
 		jobRequests = new HashMap<>();
 		jobStatus = new HashMap<Integer, JobStatusResponse>();
 		jobMapInfo = new HashMap<>();
@@ -655,16 +673,15 @@ public class JTrackerDriver implements IJobTracker {
 	}
 	
 	
-	public static synchronized void generateJobID()
+	public static synchronized int generateJobID()
 	{
 		MyFileReader myReader = new MyFileReader(Constants.JOB_ID_FILE);
 		myReader.openFile();
-		
+		Integer value=0;
 		try {
 			String line = myReader.buff_reader.readLine();
-			Integer value = Integer.parseInt(line);
+			value = Integer.parseInt(line);
 			value++;
-			jobID = value;
 			
 			PrintWriter pw;
 			
@@ -677,5 +694,7 @@ public class JTrackerDriver implements IJobTracker {
 			e.printStackTrace();
 		}
 		myReader.closeFile();
+		
+		return value;
 	}
 }
