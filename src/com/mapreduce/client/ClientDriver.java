@@ -3,6 +3,7 @@ package com.mapreduce.client;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -10,6 +11,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.mapreduce.hdfsutils.GetFile;
 import com.mapreduce.jobtracker.IJobTracker;
 import com.mapreduce.misc.Constants;
 import com.mapreduce.misc.MapReduce.JobStatusRequest;
@@ -117,6 +119,11 @@ public class ClientDriver {
 			}
 			
 			System.out.println("Operation completed");
+			
+			GetFile getFile = new GetFile(outputFile,outputFile);
+			getFile.run();
+			
+			System.out.println("Have you seen bthis file?? --> "+outputFile);
 			
 			/**
 			 *  Read contents of output file after this.
