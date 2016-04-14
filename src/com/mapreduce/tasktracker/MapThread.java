@@ -103,7 +103,7 @@ class MapThread implements Runnable{
 				e1.printStackTrace();
 			}
 			word = new String(newByteArray, StandardCharsets.UTF_8);
-			
+//			System.out.println("testing keyword "+word);
 		
 			String lines[] = input.split("\n");
 			
@@ -164,6 +164,7 @@ class MapThread implements Runnable{
 		
 		/*replace this by dynamic jar */
 		String val = null;
+//		System.out.println(line+"*********"+word+"********");
 		
 		try {
 		   val = (String)mapMethod.invoke(mapInstance, new Object[] { line,word});
@@ -177,6 +178,8 @@ class MapThread implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+//		System.out.println("mapper returnd" + val);
 		
 		return val;
 		

@@ -121,8 +121,10 @@ public class TTrackerDriver {
 						try {
 							HeartBeatResponse res = HeartBeatResponse.parseFrom(resAray);
 							
-							System.out.println("Map Tasks" + res.getMapTasksList());
-							System.out.println("Reduce Tasks" + res.getReduceTasksList());
+							System.out.println("Map Tasks : " + res.getMapTasksList());
+							System.out.println();
+							System.out.println("Reduce Tasks : " + res.getReduceTasksList());
+							System.out.println();
 							
 							if(res.getMapTasksList().size()!=0)
 							{
@@ -171,7 +173,7 @@ public class TTrackerDriver {
 	 private static  Registry getJTRegistry()
 		{
 			
-		 System.out.print("reching");
+//		 System.out.print("reching");
 		 BufferedReader buff;
 			String line="";
 			try {
@@ -199,35 +201,6 @@ public class TTrackerDriver {
 			return registry;
 		}
 	 
-	 
-//	 private static  Registry getNameNodeRegistry()
-//		{
-//			BufferedReader buff;
-//			String line="";
-//			try {
-//				buff = new BufferedReader(new FileReader(Constants.NAMENODE_CONF));  
-//				line=buff.readLine();
-//				buff.close();
-//			} catch (IOException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//			
-//			
-//			String tokens[] = line.split(" ");
-//			
-//			Registry registry =null;
-//			try {
-//				registry = LocateRegistry.getRegistry(tokens[0],Integer.parseInt(tokens[1]));
-//				
-//			}catch(RemoteException e)
-//			{
-//				
-//			}
-//			
-//			return registry;
-//		}
-
 	 
 	 
 	 static void startMapTaskThread(List<MapTaskInfo> info)

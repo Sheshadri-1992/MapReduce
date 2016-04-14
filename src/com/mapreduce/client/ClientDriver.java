@@ -54,10 +54,7 @@ public class ClientDriver {
 		// TODO Auto-generated method stub
 		
 		
-		System.out.print("jejej");
-		
 		Registry registry = getRegistry();
-		System.out.print(registry);
 		
 		if(registry!=null)
 		{
@@ -82,18 +79,33 @@ public class ClientDriver {
 			jobStatusRequest.setJobId(jobId);
 			
 			
+			if(jobSubmitResponse.getStatus()==Constants.STATUS_FAILED)
+			{
+				System.out.println("File not found");
+				System.exit(0);
+			}
+			
 			while(true)
 			{
 				byte[] statusResponseArr = jtStub.getJobStatus(jobStatusRequest.build().toByteArray());
 				
 				JobStatusResponse jobStatusResponse = JobStatusResponse.parseFrom(statusResponseArr);
 				
+				
+				
 				if(jobStatusResponse.getJobDone())
 				{
 					break;
 				}else
 				{
-					System.out.println("Print Status");
+					
+					System.out.println("Total Map Tasks :"+jobStatusResponse.getTotalMapTasks());
+					System.out.println("Total Map Tasks Started:"+jobStatusResponse.getNumMapTasksStarted());
+					System.out.println("Total Reduce Tasks :"+jobStatusResponse.getTotalReduceTasks());
+					System.out.println("Total Reduce Tasks Started :"+jobStatusResponse.getNumReduceTasksStarted());
+					
+					System.out.println();
+					System.out.println();
 				}
 				
 				try {

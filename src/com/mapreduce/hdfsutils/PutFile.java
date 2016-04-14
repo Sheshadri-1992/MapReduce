@@ -74,7 +74,7 @@ public class PutFile implements Runnable {
 					OpenFileResponse responseObj = OpenFileResponse.parseFrom(responseArray);
 					
 					fileHandle = responseObj.getHandle();
-					System.out.println("The file handle is "+fileHandle);
+//					System.out.println("The file handle is "+fileHandle);
 					
 					status = responseObj.getStatus();
 					if(status==Constants.STATUS_FAILED )//status failed change it
@@ -84,7 +84,7 @@ public class PutFile implements Runnable {
 					}
 					else if(status==Constants.STATUS_NOT_FOUND)
 					{
-						System.out.println("Duplicate File");
+						System.out.println("Duplicate File "+fileName);
 						System.exit(0);
 					}
 					
@@ -137,7 +137,7 @@ public class PutFile implements Runnable {
 						blkLocation = assignResponseObj.getNewBlock();
 						
 						int blockNumber = blkLocation.getBlockNumber();
-						System.out.println("Block number retured is "+blockNumber);
+//						System.out.println("Block number retured is "+blockNumber);
 						
 						dataNodeLocations = blkLocation.getLocationsList();
 						
@@ -147,7 +147,7 @@ public class PutFile implements Runnable {
 						
 						Registry registry2=LocateRegistry.getRegistry(dataNode.getIp(),dataNode.getPort());
 
-						System.out.println(dataNode);
+						System.out.println("PutFile Datanodes : " + dataNode);
 						IDataNode dataStub = (IDataNode) registry2.lookup(Constants.DATA_NODE_ID);
 //						dataStub.readBlock(null);
 						
@@ -202,7 +202,7 @@ public class PutFile implements Runnable {
 	public byte[] read32MBfromFile(int offset,String fileName)
 	{
 		
-		System.out.println("offset is "+offset);
+//		System.out.println("offset is "+offset);
 
 		
 		BufferedReader breader = null;

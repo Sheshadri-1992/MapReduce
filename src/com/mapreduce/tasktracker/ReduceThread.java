@@ -73,6 +73,7 @@ class ReduceThread implements Runnable{
 		
 		writer.closeFile();
 		
+//		System.out.println("Putting reduce file in hdfs "+info.getOutputFile());
 		PutFile putFile = new PutFile(info.getOutputFile(), info.getOutputFile());
 		Thread thread1 = new Thread(putFile);
 		thread1.start();
